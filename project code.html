@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EDUPORTAL — Educator Dashboard</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg: #F8F9FF;
+      --card: rgba(255,255,255,0.78);
+      --glass: rgba(255,255,255,0.36);
+      --accent: #5B7CFD;
+      --muted: #6b7280;
+      --lavender: #EEF2FF;
+      --radius: 14px;
+      --glass-blur: 10px;
+    }
+    *{ box-sizing:border-box; font-family:'Poppins',system-ui,-apple-system,Segoe UI,Roboto,Arial; }
+    body{
+      margin:0; min-height:100vh;
+      background: linear-gradient(180deg,var(--lavender) 0%, var(--bg) 60%);
+      display:flex; align-items:center; justify-content:center; padding:22px;
+      color:#0f172a;
+    }
+    .layout{
+      width:1100px; max-width:100%; display:grid;
+      grid-template-columns:420px 1fr; gap:24px;
+    }
+
+    /* LEFT PANEL */
+    .panel{
+      border-radius:var(--radius);
+      padding:26px; display:flex; flex-direction:column; gap:18px;
+      background: linear-gradient(135deg, rgba(91,124,253,0.10), rgba(215,227,252,0.06));
+      box-shadow: 0 10px 30px rgba(24,30,54,0.06);
+      min-height:460px;
+    }
+    .brand{ display:flex; gap:12px; align-items:center; }
+    .logo{
+      width:64px; height:64px; border-radius:14px; background:white;
+      display:grid; place-items:center; font-size:30px; box-shadow:0 8px 22px rgba(91,124,253,0.12);
+    }
+    .brand h1{ margin:0; font-size:22px; }
+    .brand p{ margin:0; color:var(--muted); font-size:13px; }
+    .panel-hero{ padding:14px; border-radius:12px; background:rgba(255,255,255,0.45); backdrop-filter:blur(6px); }
+    .chip{ display:inline-block; padding:8px 12px; border-radius:999px; font-weight:600; color:var(--accent); border:1px dashed rgba(91,124,253,0.16); }
+
+    /* RIGHT CONTENT */
+    .content{ display:flex; flex-direction:column; gap:18px; }
+
+    .glass{
+      border-radius:var(--radius);
+      background: linear-gradient(180deg,var(--glass), rgba(255,255,255,0.12));
+      border:1px solid rgba(255,255,255,0.35);
+      box-shadow:0 10px 30px rgba(22,28,45,0.06);
+      backdrop-filter: blur(var(--glass-blur));
+      padding:18px;
+    }
+
+    .login-card{ display:flex; gap:18px; align-items:center; padding:18px; }
+    .login-left{ width:112px; height:112px; border-radius:12px; background:linear-gradient(135deg,#83A1FF,#5B7CFD); display:grid; place-items:center; font-size:42px; color:white; }
+    .input{ width:100%; padding:12px 14px; border-radius:10px; border:1px solid rgba(15,23,42,0.06); background:white; }
+    .label{ font-size:13px; color:var(--muted); margin-bottom:8px; display:block; }
+    .btn{ padding:10px 14px; border-radius:10px; border:0; cursor:pointer; background:var(--accent); color:white; font-weight:600; }
+    .btn.ghost{ background:transparent; color:var(--accent); border:1px solid rgba(91,124,253,0.12); }
+
+    .dashboard-header{ display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px; border-radius:12px; }
+    .profile-inline{ display:flex; gap:12px; align-items:center; }
+    .avatar{ width:56px; height:56px; border-radius:12px; display:grid; place-items:center; color:white; font-weight:700; background:linear-gradient(135deg,#83A1FF,#5B7CFD); }
+
+    .controls{ display:flex; gap:10px; align-items:center; }
+
+    .cards{ display:grid; grid-template-columns: repeat(auto-fill,minmax(240px,1fr)); gap:16px; margin-top:10px; }
+    .course{ background:var(--card); padding:14px; border-radius:12px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 8px 20px rgba(0,0,0,0.04); }
+    .code{ display:inline-block; padding:6px 10px; border-radius:8px; background:rgba(91,124,253,0.12); color:#23318b; font-weight:700; }
+
+    .ref{ margin-top:10px; font-size:13px; background:white; padding:10px; border-radius:8px; }
+
+    .add-course-form{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; padding:12px; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.45)); }
+
+    /* Floating profile card modal style (glass) */
+    .profile-card{
+      position:fixed; right:24px; top:24px; width:360px; max-width:92%; z-index:50;
+      border-radius:12px; padding:16px; box-shadow:0 18px 40px rgba(15,23,42,0.12);
+      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+      backdrop-filter: blur(8px);
+      display:none;
+    }
+    .profile-card.open{ display:block; }
+
+    .profile-pic{ width:84px; height:84px; border-radius:12px; background:linear-gradient(135deg,#83A1FF,#5B7CFD); display:grid; place-items:center; color:white; font-weight:700; font-size:22px; }
+
+    .field{ display:flex; flex-direction:column; gap:6px; margin-top:8px; }
+    .small{ font-size:13px; color:var(--muted); }
+
+    .toast{ position:fixed; right:20px; bottom:18px; background:#0f172a; color:white; padding:10px 14px; border-radius:10px; opacity:0; transform:translateY(12px); transition:all .3s; }
+    .toast.show{ opacity:1; transform:none; }
+
+    @media (max-width:960px){ .layout{ grid-template-columns:1fr; } .profile-card{ left:50%; transform:translateX(-50%); top:auto; bottom:24px; } }
+  </style>
+</head>
+<body>
+
+  <div class="layout">
+    <!-- LEFT -->
+    <aside class="panel">
+      <div class="brand">
+        <div class="logo" aria-hidden>📚</div>
+        <div>
+          <h1>EDUPORTAL</h1>
+          <p>Tools for modern educators</p>
+        </div>
+      </div>
+
+      <div class="panel-hero">
+        <h2>Teach with clarity</h2>
+        <p>Manage courses, store references and maintain a professional profile — all in a calm, pastel UI.</p>
+      </div>
+
+      <div style="margin-top:auto;">
+        <div class="chip">Glass UI</div>
+        <div style="height:8px;"></div>
+        <div class="small">Tip: open <strong>My Profile</strong> to add your personal details. Courses you add are saved in your browser for demo.</div>
+      </div>
+    </aside>
+
+    <!-- RIGHT -->
+    <main class="content">
+
+      <!-- LOGIN -->
+      <section id="loginSection" class="glass">
+        <div class="login-card">
+          <div class="login-left" aria-hidden>🎓</div>
+          <div style="flex:1;">
+            <h2 style="margin:0 0 6px 0;">Educator Login</h2>
+            <div class="small" style="margin-bottom:10px; color:var(--muted);">Sign in to manage your courses & profile</div>
+
+            <div style="margin-bottom:8px;">
+              <label class="label">Educator ID</label>
+              <input id="educatorId" class="input" placeholder="teacher01">
+            </div>
+
+            <div style="margin-bottom:8px;">
+              <label class="label">Password</label>
+              <input id="educatorPass" class="input" type="password" placeholder="teach@123">
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:8px;">
+              <button class="btn" id="loginBtn">Login</button>
+              <button class="btn ghost" id="demoBtn">Demo</button>
+              <button class="btn ghost" id="forgotBtn">Forgot</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DASHBOARD -->
+      <section id="dashboardSection" style="display:none;">
+
+        <div class="dashboard-header glass">
+          <div>
+            <div class="small">Welcome back,</div>
+            <div style="font-weight:700; font-size:18px;" id="educatorName">Educator</div>
+            <div class="small" id="educatorIdLabel"></div>
+          </div>
+
+          <div class="controls">
+            <div class="profile-inline">
+              <div class="avatar" id="avatarInitial">E</div>
+            </div>
+
+            <button class="btn ghost" id="myProfileBtn">My Profile</button>
+            <button class="btn ghost" id="toggleAddCourse">Add Course</button>
+            <button class="btn" id="logoutBtn">Logout</button>
+          </div>
+        </div>
+
+        <!-- Add course form (hidden by default) -->
+        <div id="addCourseArea" style="display:none;" class="glass add-course-form">
+          <input id="courseTitle" class="input" placeholder="Course Title (e.g., Digital Pedagogy)">
+          <input id="courseCode" class="input" placeholder="Course Code (e.g., ED101)">
+          <input id="courseFac" class="input" placeholder="Faculty / Presenter (e.g., Dr. Rao)">
+          <input id="courseRef" class="input" placeholder="Reference(s) — format: Book — Author ; separate by | ">
+          <button class="btn" id="addCourseBtn">Add Course</button>
+        </div>
+
+        <div style="margin-top:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-weight:700; font-size:16px;">Your Courses</div>
+            <div class="small" id="coursesCount">0 courses</div>
+          </div>
+
+          <div id="coursesGrid" class="cards"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Floating Profile Card (glass) -->
+  <div id="profileCard" class="profile-card" role="dialog" aria-hidden="true">
+    <div style="display:flex; gap:12px; align-items:center;">
+      <div id="profilePicPreview" class="profile-pic">P</div>
+      <div>
+        <div style="font-weight:700;" id="profNamePreview">Professor</div>
+        <div class="small" id="profDeptPreview">Department</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="small">Full Name</label>
+      <input id="profName" class="input" placeholder="e.g., Dr. Ananya Rao">
+    </div>
+
+    <div class="field">
+      <label class="small">Email</label>
+      <input id="profEmail" class="input" placeholder="your.email@example.com">
+    </div>
+
+    <div class="field">
+      <label class="small">Department</label>
+      <input id="profDept" class="input" placeholder="e.g., Computer Science">
+    </div>
+
+    <div class="field">
+      <label class="small">Years of Experience</label>
+      <input id="profExp" class="input" placeholder="e.g., 8">
+    </div>
+
+    <div class="field">
+      <label class="small">Profile Picture URL</label>
+      <input id="profPicUrl" class="input" placeholder="https://... (image URL)">
+    </div>
+
+    <div class="field">
+      <label class="small">Short Bio</label>
+      <textarea id="profBio" class="input" rows="3" placeholder="Short bio about you..."></textarea>
+    </div>
+
+    <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:10px;">
+      <button class="btn ghost" id="closeProfile">Close</button>
+      <button class="btn" id="saveProfile">Save Profile</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast">Saved</div>
+
+<script>
+/* ---------- Keys & demo ---------- */
+const COURSES_LS = 'eduportal_courses_v1';
+const PROFILE_LS = 'eduportal_profile_v1';
+const SESSION_LS = 'eduportal_session_v1';
+const DEMO = { id:'teacher01', pass:'teach@123', name:'Priya Sharma' };
+
+/* ---------- Utils ---------- */
+function toast(msg='Saved', t=1600){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(()=> el.classList.remove('show'), t);
+}
+function qs(id){ return document.getElementById(id); }
+function escapeHtml(s){ if(!s) return ''; return s.replace(/[&<>"]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+
+/* ---------- Courses (localStorage) ---------- */
+const SAMPLE = [
+  { code:'ED101', title:'Digital Pedagogy', faculty:'Dr. Ananya Rao', refs:['Teaching in the Digital Age — Jane Smith','Online Learning Design — R. Kumar'] },
+  { code:'ED204', title:'Classroom Technology Tools', faculty:'Mr. Sandeep Verma', refs:['Tools for Teachers — M. Lopez','EdTech Handbook — T. Nakamura'] },
+  { code:'ED305', title:'Advanced Curriculum Design', faculty:'Prof. Lekha Iyer', refs:['Curriculum Theory — P. Brown','Designing Courses — A. Fernandes'] }
+];
+
+function getCourses(){
+  try {
+    const raw = localStorage.getItem(COURSES_LS);
+    if(!raw){ localStorage.setItem(COURSES_LS, JSON.stringify(SAMPLE)); return [...SAMPLE]; }
+    return JSON.parse(raw);
+  } catch(e){ localStorage.setItem(COURSES_LS, JSON.stringify(SAMPLE)); return [...SAMPLE]; }
+}
+function setCourses(list){ localStorage.setItem(COURSES_LS, JSON.stringify(list)); }
+
+/* ---------- Profile ---------- */
+function getProfile(){
+  try {
+    const raw = localStorage.getItem(PROFILE_LS);
+    if(!raw) return null;
+    return JSON.parse(raw);
+  } catch(e){ return null; }
+}
+function setProfile(p){ localStorage.setItem(PROFILE_LS, JSON.stringify(p)); }
+
+/* ---------- Session ---------- */
+function setSession(sess){ localStorage.setItem(SESSION_LS, JSON.stringify(sess)); }
+function getSession(){ try { return JSON.parse(localStorage.getItem(SESSION_LS)||'null'); } catch(e){ return null; } }
+function clearSession(){ localStorage.removeItem(SESSION_LS); }
+
+/* ---------- Rendering ---------- */
+function renderCourses(){
+  const grid = qs('coursesGrid'); grid.innerHTML = '';
+  const list = getCourses();
+  qs('coursesCount').textContent = list.length + (list.length===1 ? ' course' : ' courses');
+  list.forEach((c, idx) => {
+    const card = document.createElement('div'); card.className='course';
+    card.innerHTML = `
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:start;">
+          <div><h3 style="margin:0 0 6px 0;">${escapeHtml(c.title)}</h3><div class="small" style="color:var(--muted);">Faculty: ${escapeHtml(c.faculty||'TBD')}</div></div>
+          <div class="code">${escapeHtml(c.code||'ED000')}</div>
+        </div>
+        <div class="ref"><strong>References:</strong>
+          <ul style="margin:8px 0 0 16px;">${(c.refs||[]).map(r=>`<li>${escapeHtml(r)}</li>`).join('')}</ul>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:12px;">
+        <button class="btn ghost" onclick="copyRefs(${idx})">Copy Refs</button>
+        <button class="btn ghost" onclick="editCourse(${idx})">Edit</button>
+        <button class="btn" onclick="removeCourse(${idx})">Remove</button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+function copyRefs(i){
+  const list=getCourses(); if(!list[i]) return;
+  const text=(list[i].refs||[]).join('\\n'); navigator.clipboard?.writeText(text).then(()=>toast('References copied'));
+}
+function removeCourse(i){
+  if(!confirm('Remove this course?')) return;
+  const list=getCourses(); list.splice(i,1); setCourses(list); renderCourses(); toast('Course removed');
+}
+function editCourse(i){
+  const list=getCourses(); const c=list[i];
+  if(!c) return;
+  // fill add form and toggle open
+  qs('courseTitle').value = c.title; qs('courseCode').value = c.code; qs('courseFac').value = c.faculty; qs('courseRef').value = (c.refs||[]).join(' | ');
+  // remove old one
+  list.splice(i,1); setCourses(list); renderCourses();
+  qs('addCourseArea').style.display='flex';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ---------- Profile UI ---------- */
+function openProfileCard(){
+  const p = getProfile();
+  qs('profileCard').classList.add('open'); qs('profileCard').setAttribute('aria-hidden','false');
+  if(p){
+    qs('profName').value = p.name||'';
+    qs('profEmail').value = p.email||'';
+    qs('profDept').value = p.dept||'';
+    qs('profExp').value = p.exp||'';
+    qs('profPicUrl').value = p.pic||'';
+    qs('profBio').value = p.bio||'';
+    updateProfilePreview(p);
+  } else {
+    qs('profName').value=''; qs('profEmail').value=''; qs('profDept').value=''; qs('profExp').value=''; qs('profPicUrl').value=''; qs('profBio').value='';
+    updateProfilePreview(null);
+  }
+}
+function closeProfileCard(){ qs('profileCard').classList.remove('open'); qs('profileCard').setAttribute('aria-hidden','true'); }
+function updateProfilePreview(p){
+  const preview = qs('profilePicPreview');
+  const name = (p && p.name) ? p.name : 'P';
+  if(p && p.pic){
+    preview.style.backgroundImage = `url(${p.pic})`; preview.style.backgroundSize='cover'; preview.style.backgroundPosition='center';
+    preview.textContent = '';
+  } else {
+    preview.style.backgroundImage=''; preview.textContent = (name[0]||'P').toUpperCase();
+    preview.style.background = 'linear-gradient(135deg,#83A1FF,#5B7CFD)'; preview.style.color='white';
+  }
+  qs('profNamePreview').textContent = p && p.name ? p.name : 'Professor';
+  qs('profDeptPreview').textContent = p && p.dept ? p.dept : '';
+}
+
+/* ---------- Add Course ---------- */
+function addCourseFromForm(){
+  const title = qs('courseTitle').value.trim();
+  if(!title){ alert('Course title required'); return; }
+  let code = qs('courseCode').value.trim(); if(!code) code = generateCode(title);
+  const fac = qs('courseFac').value.trim() || 'TBD';
+  const refsRaw = qs('courseRef').value.trim();
+  const refs = refsRaw ? refsRaw.split('|').map(s=>s.trim()).filter(Boolean) : ['Recommended Reading — Author'];
+  const list = getCourses(); list.unshift({ code, title, faculty:fac, refs }); setCourses(list); renderCourses();
+  qs('courseTitle').value=''; qs('courseCode').value=''; qs('courseFac').value=''; qs('courseRef').value='';
+  qs('addCourseArea').style.display='none'; toast('Course added');
+}
+function generateCode(title){
+  const initials = title.split(/\s+/).slice(0,2).map(p=>p[0]).join('').toUpperCase();
+  return 'ED' + initials + Math.floor(Math.random()*90+10);
+}
+
+/* ---------- Auth (demo, client-side) ---------- */
+function tryAutoSession(){
+  const sess = getSession();
+  if(sess) openDashboard(sess);
+}
+function handleLogin(){
+  const id = qs('educatorId').value.trim();
+  const pass = qs('educatorPass').value;
+  if(!id || !pass){ alert('Fill both fields'); return; }
+  if(id === DEMO.id && pass === DEMO.pass){
+    setSession({ id:DEMO.id, name:DEMO.name }); openDashboard();
+    toast('Welcome back, ' + DEMO.name);
+  } else {
+    // allow teacher* id with pass length >=6 for demo flexibility
+    if(id.toLowerCase().startsWith('teacher') && pass.length >= 6){
+      const nameGuess = id.replace(/teacher/i,'').trim() || 'Educator';
+      const name = nameGuess ? (nameGuess[0].toUpperCase()+nameGuess.slice(1)) : 'Educator';
+      setSession({ id, name }); openDashboard(); toast('Welcome, ' + name);
+    } else {
+      alert('Invalid credentials. Use demo: teacher01 / teach@123 OR id starting with "teacher" and password >=6 chars.');
+    }
+  }
+}
+function openDashboard(sess){
+  const s = sess || getSession();
+  if(!s) return;
+  qs('loginSection').style.display='none';
+  qs('dashboardSection').style.display='';
+  qs('educatorName').textContent = s.name || 'Educator';
+  qs('educatorIdLabel').textContent = s.id || '';
+  qs('avatarInitial').textContent = (s.name && s.name[0]) ? s.name[0].toUpperCase() : 'E';
+  renderCourses();
+  // populate profile preview
+  updateProfilePreview(getProfile());
+}
+function logout(){
+  if(confirm('Logout?')){ clearSession(); location.reload(); }
+}
+
+/* ---------- Event listeners ---------- */
+window.addEventListener('load', ()=>{
+  // populate localStorage on first load
+  getCourses();
+  tryAutoSession();
+});
+
+qs('demoBtn').addEventListener('click', ()=>{ qs('educatorId').value = DEMO.id; qs('educatorPass').value = DEMO.pass; });
+qs('loginBtn').addEventListener('click', handleLogin);
+qs('forgotBtn').addEventListener('click', ()=> alert('Forgot password is a mock page. Contact admin for real resets.'));
+
+qs('logoutBtn').addEventListener('click', logout);
+qs('toggleAddCourse').addEventListener('click', ()=> { const el=qs('addCourseArea'); el.style.display = el.style.display === 'flex' ? 'none' : 'flex'; });
+
+qs('addCourseBtn').addEventListener('click', addCourseFromForm);
+
+// Profile card controls
+qs('myProfileBtn').addEventListener('click', openProfileCard);
+qs('closeProfile').addEventListener('click', closeProfileCard);
+qs('saveProfile').addEventListener('click', ()=>{
+  const p = { name: qs('profName').value.trim(), email: qs('profEmail').value.trim(), dept: qs('profDept').value.trim(), exp: qs('profExp').value.trim(), pic: qs('profPicUrl').value.trim(), bio: qs('profBio').value.trim() };
+  if(!p.name){ alert('Please add your name'); return; }
+  setProfile(p); updateProfilePreview(p); toast('Profile saved'); closeProfileCard();
+  // update dashboard name if session exists
+  const s = getSession(); if(s){ qs('educatorName').textContent = p.name; qs('avatarInitial').textContent = p.name[0].toUpperCase(); setSession({ id:s.id, name:p.name }); }
+});
+qs('profPicUrl').addEventListener('change', ()=> {
+  const url = qs('profPicUrl').value.trim();
+  if(url) { qs('profilePicPreview').style.backgroundImage = `url(${url})`; qs('profilePicPreview').style.backgroundSize='cover'; qs('profilePicPreview').textContent=''; }
+  else { updateProfilePreview(getProfile()); }
+});
+
+/* ---------- Expose some functions to window for inline onclicks ---------- */
+window.copyRefs = copyRefs;
+window.removeCourse = removeCourse;
+window.editCourse = editCourse;
+
+</script>
+</body>
+</html>
